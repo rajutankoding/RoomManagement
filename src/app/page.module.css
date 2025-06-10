@@ -1,0 +1,71 @@
+.background {
+  background-image: url("/background.jpg"); /* Pastikan Anda memiliki gambar background atau ganti dengan warna solid */
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Webkit browsers (Chrome, Safari) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox (requires a separate selector for scrollbar) */
+.custom-scrollbar {
+  scrollbar-width: thin; /* "auto" or "none" */
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1); /* thumb track */
+}
+
+/* page.module.css */
+.videoBackgroundContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* Penting untuk mencegah scrollbar */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Tambahkan background fallback jika video gagal dimuat atau untuk performa */
+  background-color: #333;
+  background-image: url("/placeholder-image.jpg"); /* Opsional: gambar fallback */
+  background-size: cover;
+  background-position: center;
+}
+
+.videoElement {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Pastikan video memenuhi container */
+  z-index: -1; /* Pindahkan video ke belakang konten */
+}
+
+.contentOverlay {
+  position: relative; /* Pastikan konten berada di atas video */
+  z-index: 1;
+  color: white; /* Contoh: teks putih agar terlihat di atas video */
+  text-align: center;
+  padding: 20px;
+  /* Mungkin tambahkan background semi-transparan untuk readability */
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+}
