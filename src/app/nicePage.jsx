@@ -136,7 +136,7 @@ export default function SchedulePage() {
   const handleItemClick = (event, item) => {
     event.preventDefault();
     // Logika untuk menangani klik item, misalnya membuka detail atau melakukan booking
-    // console.log("Item clicked:", item);
+    console.log("Item clicked:", item);
   };
 
   const getDayName = (dateString) => {
@@ -281,7 +281,7 @@ export default function SchedulePage() {
           <div className="bg-emerald-800/30 backdrop-blur-xl border border-emerald-400/20 rounded-3xl p-6 shadow-2xl flex flex-col h-[80vh]">
             <div className="text-white mb-4">
               <h1 className="text-2xl font-bold">BOROBUDUR</h1>
-              <p className="text-sm opacity-80">Antrian Minggu ini</p>
+              <p className="text-sm opacity-80">Ruang Meeting 1</p>
             </div>
             <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar relative">
               {processedSchedule.map((dayData, index) => (
@@ -318,7 +318,7 @@ export default function SchedulePage() {
           <div className="bg-purple-800/30 backdrop-blur-xl border border-purple-400/20 rounded-3xl p-6 shadow-2xl flex flex-col h-[80vh]">
             <div className="text-white mb-4">
               <h1 className="text-2xl font-bold">PRAMBANAN</h1>
-              <p className="text-sm opacity-80">Antrian Minggu ini</p>
+              <p className="text-sm opacity-80">Ruang Meeting 2</p>
             </div>
             <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar relative">
               {processedSchedule.map((dayData, index) => (

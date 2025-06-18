@@ -56,17 +56,8 @@ export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBooking, setEditingBooking] = useState({
-    id: null,
-    bidang: "",
-    bagian: "",
-    room: "",
-    activity: "",
-    startTime: "",
-    endTime: "",
-    bookedBy: "",
-  });
-  const [bookingsData, setBookingsData] = useState();
+  const [editingBooking, setEditingBooking] = useState(null);
+  const [bookingsData, setBookingsData] = useState({}); // Mengubah ini menjadi objek untuk akses mudah berdasarkan tanggal
   // State untuk form booking (digunakan untuk CREATE dan EDIT)
   const [bookingForm, setBookingForm] = useState({
     id: null,
@@ -78,68 +69,31 @@ export default function Calendar() {
     endTime: "",
     bookedBy: "",
   });
+
   const fetchBookings = async () => {
     try {
       const response = await fetch("http://192.168.5.3:3005/api/schedule");
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      setBookingsData(data);
+      // Transform the data to be easily accessible by date
+      const transformedData = data.reduce((acc, booking) => {
+        const dateKey = new Date(booking.date).toISOString().split("T")[0];
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(booking);
+        return acc;
+      }, {});
+      setBookingsData(transformedData);
     } catch (error) {
       console.error("Failed to fetch bookings:", error);
     }
   };
-  useEffect(() => {
-    // const fetchBookings = async () => {
-    //   try {
-    //     const response = await fetch("http://192.168.5.3:3005/api/schedule"); // Ganti dengan endpoint API backend Anda
-    //     if (!response.ok) {
-    //       throw new Error(`HTTP error! status: ${response.status}`);
-    //     }
-    //     const data = await response.json();
-    //     setBookingsData(data); // Simpan data mentah dari BE
-    //   } catch (error) {
-    //     console.error("Failed to fetch bookings:", error);
-    //   }
-    // };
 
+  useEffect(() => {
     fetchBookings();
   }, []);
-
-  // Fungsi Pembantu: Mengonversi waktu HH:mm ke menit sejak tengah malam
-  const timeToMinutes = (timeString) => {
-    const [hours, minutes] = timeString.split(":").map(Number);
-    return hours * 60 + minutes;
-  };
-
-  // Fungsi untuk mengecek apakah ada konflik waktu
-  const isTimeConflict = (newBooking, existingBookings) => {
-    const newStartMinutes = timeToMinutes(newBooking.startTime);
-    const newEndMinutes = timeToMinutes(newBooking.endTime);
-
-    for (const existingBooking of existingBookings) {
-      // Lewati booking itu sendiri jika sedang dalam mode edit (UPDATE)
-      // Ini penting agar saat edit, booking lama tidak dianggap konflik dengan dirinya sendiri.
-      if (editingBooking && existingBooking.id === editingBooking.id) {
-        continue;
-      }
-
-      const existingStartMinutes = timeToMinutes(existingBooking.startTime);
-      const existingEndMinutes = timeToMinutes(existingBooking.endTime);
-
-      // Kondisi untuk TABRAKAN:
-      // (Mulai booking baru < Akhir booking lama) DAN (Akhir booking baru > Mulai booking lama)
-      if (
-        newStartMinutes < existingEndMinutes &&
-        newEndMinutes > existingStartMinutes
-      ) {
-        // Ada tabrakan!
-        return true;
-      }
-    }
-    // Tidak ada tabrakan ditemukan
-    return false;
-  };
 
   if (status === "loading") return <div>Loading...</div>;
   const calendarDays = generateCalendarDays(currentMonth);
@@ -159,10 +113,9 @@ export default function Calendar() {
 
   const handleDayClick = (date) => {
     if (date.getMonth() === currentMonth.getMonth()) {
-      // Hanya izinkan klik pada hari di bulan saat ini
       setSelectedDate(date);
       setIsModalOpen(true);
-      setEditingBooking(null); // Pastikan tidak ada booking yang diedit saat membuka dari klik tanggal
+      setEditingBooking(null);
       setBookingForm({
         id: null,
         bidang: "",
@@ -172,14 +125,14 @@ export default function Calendar() {
         startTime: "",
         endTime: "",
         bookedBy: "",
-      }); // Reset form
+      });
     }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedDate(null);
-    setEditingBooking(null); // Reset booking yang diedit saat modal ditutup
+    setEditingBooking(null);
     setBookingForm({
       id: null,
       bidang: "",
@@ -189,7 +142,7 @@ export default function Calendar() {
       startTime: "",
       endTime: "",
       bookedBy: "",
-    }); // Reset form
+    });
   };
 
   const handleBookingFormChange = (e) => {
@@ -197,41 +150,56 @@ export default function Calendar() {
     setBookingForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Fungsi untuk memulai mode edit
   const handleEditBooking = (booking) => {
-    setEditingBooking(booking); // Set booking yang akan diedit
+    setEditingBooking(booking);
     setBookingForm({
-      // Isi form dengan data booking yang ada
       bidang: booking.bidang,
       bagian: booking.bagian,
       id: booking.id,
       room: booking.room,
-      activity: booking.activity,
+      activity: booking.event, // Use 'event' from the fetched data
       startTime: booking.startTime,
       endTime: booking.endTime,
       bookedBy: booking.bookedBy,
     });
-    setIsModalOpen(true); // Buka modal
+    setIsModalOpen(true);
+  };
+
+  // Fungsi untuk memeriksa konflik waktu
+  const checkTimeConflict = (newBooking, existingBookings) => {
+    const newStart = new Date(`2000/01/01 ${newBooking.startTime}`);
+    const newEnd = new Date(`2000/01/01 ${newBooking.endTime}`);
+
+    if (newStart >= newEnd) {
+      return "End time must be after start time.";
+    }
+
+    for (const booking of existingBookings) {
+      // If editing, skip the booking being edited
+      if (newBooking.id && booking.id === newBooking.id) {
+        continue;
+      }
+
+      if (booking.room === newBooking.room) {
+        const existingStart = new Date(`2000/01/01 ${booking.startTime}`);
+        const existingEnd = new Date(`2000/01/01 ${booking.endTime}`);
+
+        // Check for overlap
+        if (newStart < existingEnd && newEnd > existingStart) {
+          return `Room "${newBooking.room}" is already booked from ${booking.startTime} to ${booking.endTime} for "${booking.event}".`;
+        }
+      }
+    }
+    return null; // No conflict
   };
 
   // Fungsi untuk menambah booking baru
   const handleCreateBooking = async (e) => {
-    // Tambahkan 'async' di sini
     e.preventDefault();
     if (!selectedDate) return;
 
-    // Pastikan waktu mulai tidak lebih dari atau sama dengan waktu selesai
-    if (
-      timeToMinutes(bookingForm.startTime) >= timeToMinutes(bookingForm.endTime)
-    ) {
-      alert("Waktu selesai harus setelah waktu mulai.");
-      return;
-    }
+    const dateKey = selectedDate.toISOString().split("T")[0];
 
-    const dateKey = selectedDate.toISOString().split("T")[0]; // 'YYYY-MM-DD'
-
-    // Siapkan data yang akan dikirim ke backend
-    // Sesuaikan nama field 'activity' menjadi 'event' jika backend mengharapkan 'event'
     const newBookingPayload = {
       date: dateKey,
       bidang: bookingForm.bidang,
@@ -243,167 +211,115 @@ export default function Calendar() {
       bookedBy: bookingForm.bookedBy,
     };
 
-    // --- VALIDASI KONFLIK WAKTU ---
-    const existingBookingsForSelectedDate = getBookingsForDate(selectedDate);
-    const bookingsInSameRoom = existingBookingsForSelectedDate.filter(
-      (booking) => booking.room === newBookingPayload.room
+    const conflictMessage = checkTimeConflict(
+      newBookingPayload,
+      getBookingsForDate(selectedDate)
     );
-
-    if (isTimeConflict(newBookingPayload, bookingsInSameRoom)) {
-      alert(
-        "Waktu booking yang Anda pilih bertabrakan dengan jadwal yang sudah ada di ruangan ini. Mohon pilih waktu lain."
-      );
-      return; // Hentikan proses submit jika ada konflik
+    if (conflictMessage) {
+      alert(`Booking conflict: ${conflictMessage}`);
+      return;
     }
-    // --- AKHIR VALIDASI KONFLIK WAKTU ---
 
     try {
-      let response;
-      if (editingBooking) {
-        // Logika untuk UPDATE booking
-        response = await fetch(
-          `http://192.168.5.3:3005/api/schedule/book/${editingBooking.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newBookingPayload),
-          }
-        );
-      } else {
-        // Logika untuk CREATE booking
-        response = await fetch("http://192.168.5.3:3005/api/schedule/book", {
+      const response = await fetch(
+        "http://192.168.5.3:3005/api/schedule/book",
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(newBookingPayload),
-        });
-      }
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          `Gagal ${editingBooking ? "memperbarui" : "membuat"} booking: ${
-            errorData.message || response.statusText
+          `HTTP error! status: ${response.status}, message: ${
+            errorData.message || "Unknown error"
           }`
         );
       }
 
       const result = await response.json();
-      console.log("Operasi booking berhasil:", result);
-      alert(`Booking ${editingBooking ? "diperbarui" : "ditambahkan"}!`);
+      console.log("Booking berhasil dibuat di backend:", result);
+      alert(
+        `Booking "${newBookingPayload.event}" di ${newBookingPayload.room} berhasil ditambahkan!`
+      );
 
+      await fetchBookings();
       closeModal();
-      // if (onDataChange) {
-      //   onDataChange();
-      // }
     } catch (error) {
-      console.error("Error dalam operasi booking:", error);
-      alert(`Error: ${error.message}`);
+      console.error("Gagal membuat booking:", error);
+      alert(`Gagal membuat booking: ${error.message}`);
     }
-
-    // try {
-    //   const response = await fetch(
-    //     "http://192.168.5.3:3005/api/schedule/book",
-    //     {
-    //       method: "POST", // Metode HTTP untuk membuat data
-    //       headers: {
-    //         "Content-Type": "application/json", // Beri tahu server bahwa kita mengirim JSON
-    //       },
-    //       body: JSON.stringify(newBookingPayload), // Konversi objek data ke string JSON
-    //     }
-    //   );
-
-    //   if (!response.ok) {
-    //     // Tangani jika respons dari server tidak OK (misal status 4xx atau 5xx)
-    //     const errorData = await response.json(); // Coba baca error dari respons
-    //     throw new Error(
-    //       `HTTP error! status: ${response.status}, message: ${
-    //         errorData.message || "Unknown error"
-    //       }`
-    //     );
-    //   }
-
-    //   const result = await response.json(); // Parse respons JSON dari server
-    //   console.log("Booking berhasil dibuat di backend:", result);
-    //   alert(
-    //     `Booking "${newBookingPayload.event}" di ${newBookingPayload.room} berhasil ditambahkan!`
-    //   );
-
-    //   await fetchBookings();
-    //   // Setelah berhasil mengirim ke backend dan mendapatkan konfirmasi,
-    //   // barulah update state lokal dan tutup modal.
-    //   // Jika Anda memiliki callback ke parent untuk refresh data, panggil di sini
-    //   // onDataChange(); // Misalnya, jika Anda memiliki prop onDataChange dari parent
-    //   closeModal();
-    // } catch (error) {
-    //   console.error("Gagal membuat booking:", error);
-    //   alert(`Gagal membuat booking: ${error.message}`);
-    // }
-
-    // Baris-baris ini tidak lagi diperlukan di sini jika Anda mengandalkan fetch
-    // untuk memperbarui data dari backend atau parent component Anda
-    // setBookingsData((prevBookings) => ({
-    //   ...prevBookings,
-    //   [dateKey]: [...(prevBookings[dateKey] || []), newBookingData],
-    // }));
   };
 
   // Fungsi untuk mengupdate booking yang sudah ada
-  const handleUpdateBooking = (e) => {
+  const handleUpdateBooking = async (e) => {
     e.preventDefault();
     if (!editingBooking || !selectedDate) return;
 
     const dateKey = selectedDate.toISOString().split("T")[0];
 
-    setBookingsData((prevBookings) => ({
-      // Update state menggunakan setBookingsData
-      ...prevBookings,
-      [dateKey]: prevBookings[dateKey].map((booking) =>
-        booking.id === editingBooking.id
-          ? { ...booking, ...bookingForm } // Update dengan data dari bookingForm
-          : booking
-      ),
-    }));
+    const updatedBookingPayload = {
+      id: bookingForm.id,
+      date: dateKey,
+      bidang: bookingForm.bidang,
+      bagian: bookingForm.bagian,
+      room: bookingForm.room,
+      event: bookingForm.activity,
+      startTime: bookingForm.startTime,
+      endTime: bookingForm.endTime,
+      bookedBy: bookingForm.bookedBy,
+    };
 
-    console.log("Booking diupdate:", bookingForm);
-    alert(`Booking "${bookingForm.activity}" berhasil diupdate!`);
-    closeModal();
+    const conflictMessage = checkTimeConflict(
+      updatedBookingPayload,
+      getBookingsForDate(selectedDate)
+    );
+    if (conflictMessage) {
+      alert(`Booking conflict: ${conflictMessage}`);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://192.168.5.3:3005/api/schedule/book/${bookingForm.id}`,
+        {
+          method: "PUT", // Assuming your API uses PUT for updates
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedBookingPayload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${
+            errorData.message || "Unknown error"
+          }`
+        );
+      }
+
+      const result = await response.json();
+      console.log("Booking berhasil diupdate di backend:", result);
+      alert(`Booking "${bookingForm.activity}" berhasil diupdate!`);
+
+      await fetchBookings();
+      closeModal();
+    } catch (error) {
+      console.error("Gagal mengupdate booking:", error);
+      alert(`Gagal mengupdate booking: ${error.message}`);
+    }
   };
-
-  // const getBookingsForDate = (date) => {
-  //   const dateKey = date.toISOString().split("T")[0];
-  //   return bookingsData[dateKey] || [];
-  // };
 
   const getBookingsForDate = (date) => {
     if (!bookingsData) return [];
     const dateKey = date.toISOString().split("T")[0];
     return bookingsData[dateKey] || [];
-  };
-
-  const handleDeleteBooking = () => {
-    if (!editingBooking || !selectedDate) return;
-
-    const confirmDelete = window.confirm(
-      `Apakah Anda yakin ingin menghapus booking "${editingBooking.activity}"?`
-    );
-    if (!confirmDelete) return;
-
-    const dateKey = selectedDate.toISOString().split("T")[0];
-
-    setBookingsData((prevBookings) => ({
-      ...prevBookings,
-      [dateKey]: prevBookings[dateKey].filter(
-        (booking) => booking.id !== editingBooking.id
-      ),
-    }));
-
-    alert(`Booking "${editingBooking.activity}" berhasil dihapus!`);
-    fetchBookings();
-    closeModal(); // Tutup modal setelah penghapusan
   };
 
   const cancelOrder = async (id) => {
@@ -414,37 +330,34 @@ export default function Calendar() {
     );
     if (!confirmCancel) return;
 
-    const dateKey = selectedDate.toISOString().split("T")[0];
-    // return;
-    const response = await fetch(
-      `http://192.168.5.3:3005/api/schedule/book/${id}`,
-      {
-        method: "delete",
-      }
-    );
-
-    if (!response.ok) {
-      // Tangani jika respons dari server tidak OK (misal status 4xx atau 5xx)
-      const errorData = await response.json(); // Coba baca error dari respons
-      throw new Error(
-        `HTTP error! status: ${response.status}, message: ${
-          errorData.message || "Unknown error"
-        }`
+    try {
+      const response = await fetch(
+        `http://192.168.5.3:3005/api/schedule/book/${id}`,
+        {
+          method: "DELETE", // Assuming your API uses DELETE for cancellation
+        }
       );
-    }
-    const result = response.json();
-    console.log("response", result);
-    // setBookingsData((prevBookings) => ({
-    //   ...prevBookings,
-    //   [dateKey]: prevBookings[dateKey].filter(
-    //     (booking) => booking.id !== editingBooking.id
-    //   ),
-    // }));
 
-    alert(`Booking "${editingBooking.activity}" berhasil dibatalkan!`);
-    fetchBookings();
-    closeModal(); // Tutup modal setelah pembatalan
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${
+            errorData.message || "Unknown error"
+          }`
+        );
+      }
+      const result = await response.json(); // Use await here
+      console.log("response", result);
+
+      alert(`Booking "${editingBooking.activity}" berhasil dibatalkan!`);
+      await fetchBookings(); // Re-fetch bookings after cancellation
+      closeModal();
+    } catch (error) {
+      console.error("Gagal membatalkan booking:", error);
+      alert(`Gagal membatalkan booking: ${error.message}`);
+    }
   };
+
   return (
     <div className="bg-gray-100 flex flex-col items-center">
       {/* Main Calendar Card */}
@@ -605,7 +518,7 @@ export default function Calendar() {
                               {booking.startTime} - {booking.endTime}
                             </span>
                             <p className="text-xs">
-                              {booking.activity} ({booking.room})
+                              {booking.event} ({booking.room})
                             </p>
                           </div>
                           {/* Tombol Edit untuk setiap booking user login*/}

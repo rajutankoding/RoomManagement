@@ -27,6 +27,7 @@ const initialMockBookings = {
     },
   ],
   "2025-06-16": [
+    // Tambahkan contoh booking untuk hari ini (asumsi hari ini 16 Juni 2025)
     {
       id: 5,
       room: "Ruang Borobudur",
@@ -126,14 +127,11 @@ export default function Calendar({ data }) {
   const [editingBooking, setEditingBooking] = useState(null); // Menyimpan objek booking yang sedang diedit
   const [bookingsData, setBookingsData] = useState(initialMockBookings); // State untuk menyimpan data booking
   const [bookingForm, setBookingForm] = useState({
-    id: null,
-    bidang: "",
-    bagian: "",
+    id: null, // Untuk menyimpan ID saat mengedit
     room: "",
     activity: "",
     startTime: "",
     endTime: "",
-    bookedBy: "",
   });
 
   // --- Fungsi untuk Mengelola Data Booking (CRUD) ---
@@ -162,13 +160,10 @@ export default function Calendar({ data }) {
     setEditingBooking(null); // Pastikan bukan mode edit
     setBookingForm({
       id: null,
-      bidang: "",
-      bagian: "",
       room: "",
       activity: "",
       startTime: "",
       endTime: "",
-      bookedBy: "",
     });
     setIsModalOpen(true);
   }, []);
@@ -179,13 +174,10 @@ export default function Calendar({ data }) {
     setEditingBooking(booking); // Set booking yang sedang diedit
     setBookingForm({
       id: booking.id,
-      bidang: booking.bidang,
-      bagian: booking.bagian,
       room: booking.room,
       activity: booking.activity,
       startTime: booking.startTime,
       endTime: booking.endTime,
-      bookedBy: booking.bookedBy,
     });
     setIsModalOpen(true);
   }, []);
@@ -197,13 +189,10 @@ export default function Calendar({ data }) {
     setEditingBooking(null);
     setBookingForm({
       id: null,
-      bidang: "",
-      bagian: "",
       room: "",
       activity: "",
       startTime: "",
       endTime: "",
-      bookedBy: "",
     });
   }, []);
 
@@ -216,14 +205,11 @@ export default function Calendar({ data }) {
       const dateKey = formatDateToKey(selectedDate);
       const newBookingData = {
         id: Date.now(), // ID unik
-        bidang: bookingForm.bidang,
-        bagian: bookingForm.bagian,
         date: dateKey, // Tambahkan tanggal ke objek booking
         room: bookingForm.room,
         activity: bookingForm.activity,
         startTime: bookingForm.startTime,
         endTime: bookingForm.endTime,
-        bookedBy: bookingForm.bookedBy,
       };
 
       setBookingsData((prevBookings) => ({
@@ -460,57 +446,6 @@ export default function Calendar({ data }) {
                 editingBooking ? handleUpdateBooking : handleCreateBooking
               }
               className="space-y-4 text-gray-800">
-              <div>
-                <label
-                  htmlFor="bookedBy"
-                  className="block text-sm font-medium text-gray-700 mb-1">
-                  Nama Pemesan
-                </label>
-                <input
-                  type="text"
-                  id="bookedBy"
-                  name="bookedBy"
-                  value={bookingForm.bookedBy}
-                  onChange={handleBookingFormChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="e.g., Jhon Doe"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="bidang"
-                  className="block text-sm font-medium text-gray-700 mb-1">
-                  Bidang
-                </label>
-                <input
-                  type="text"
-                  id="bidang"
-                  name="bidang"
-                  value={bookingForm.bidang}
-                  onChange={handleBookingFormChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="e.g., RNBANG"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="bagian"
-                  className="block text-sm font-medium text-gray-700 mb-1">
-                  Sub Bagian
-                </label>
-                <input
-                  type="text"
-                  id="bagian"
-                  name="bagian"
-                  value={bookingForm.bagian}
-                  onChange={handleBookingFormChange}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="e.g., MDSI"
-                  required
-                />
-              </div>
               <div>
                 <label
                   htmlFor="room"
