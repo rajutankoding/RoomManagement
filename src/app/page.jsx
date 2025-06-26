@@ -1,272 +1,273 @@
+// src/app/page.jsx
 "use client";
-import { useEffect, useState } from "react";
-import ApiCalendar from "react-google-calendar-api";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./page.module.css";
-import Calendar from "./components/Calendar";
-const config = {
-  clientId: "proud-armor-436802-v1",
-  apiKey: "AIzaSyBKO9lBWwaDFGcN53Bw3NIStFqO4P4hObQ",
-  scope: "https://www.googleapis.com/auth/calendar",
-  discoveryDocs: [
-    "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-  ],
-};
+import Calendar from "./components/Calendar"; // Pastikan path ini benar
 
-// Map singkatan hari ke nama lokal
-const dayMap = {
-  MON: "Senin",
-  TUE: "Selasa",
-  WED: "Rabu",
-  THU: "Kamis",
-  FRI: "Jumat",
-};
+// --- Komponen utama ---
+export default function SchedulePage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [bookingsByDate, setBookingsByDate] = useState({}); // Data untuk Calendar
+  const [processedSchedule, setProcessedSchedule] = useState([]); // Data untuk kolom jadwal harian
+  const [dataBe, setDataBe] = useState([]); // Menyimpan data mentah dari backend
+  const [currentTime, setCurrentTime] = useState(new Date()); // Digunakan untuk perhitungan highlight
 
-function groupBookingsByDay(bookings) {
-  const result = {};
+  // Map nama hari lengkap (dari Date.getDay()) ke singkatan (untuk kunci scheduleData)
+  // Sunday - Saturday : 0 - 6
+  const fullDayToShortDayMap = {
+    0: "SUN",
+    1: "MON",
+    2: "TUE",
+    3: "WED",
+    4: "THU",
+    5: "FRI",
+    6: "SAT",
+  };
 
-  bookings.forEach((booking) => {
-    const date = new Date(booking.date);
-    const dayKey = dayMap[date.getDay()]; // e.g. "WED"
+  // Map singkatan hari ke nama lokal (untuk tampilan)
+  const dayMap = {
+    SUN: "Minggu",
+    MON: "Senin",
+    TUE: "Selasa",
+    WED: "Rabu",
+    THU: "Kamis",
+    FRI: "Jumat",
+    SAT: "Sabtu",
+  };
 
-    if (!result[dayKey]) {
-      result[dayKey] = [];
+  // --- Komponen Pembantu ---
+  const CourseCard = ({
+    name,
+    time,
+    room,
+    bookedBy,
+    highlight,
+    bagian,
+    bidang,
+  }) => (
+    <div
+      className={`${
+        highlight ? "bg-green-600 text-white" : "bg-white/30 text-gray-800"
+      } rounded-xl p-4 mb-2 shadow-md backdrop-blur-md transition-all duration-200 hover:shadow-lg hover:scale-[1.02] relative`}>
+      <div className="font-semibold text-lg flex justify-between items-center">
+        {name}
+        {highlight && (
+          <span className="bg-yellow-400 text-xs text-black font-bold px-2 py-0.5 rounded animate-pulse">
+            Sedang Berlangsung
+          </span>
+        )}
+      </div>
+      <div className="text-sm opacity-90">{time}</div>
+      {/* {room && <div className="text-xs opacity-70">Ruangan: {room}</div>} */}
+      {/* {bookedBy && <div className="text-xs opacity-70">Oleh: {bookedBy}</div>} */}
+      {/* Tampilkan Bagian dan Bidang jika ada */}
+      {bagian && <div className="text-xs opacity-70">Bagian: {bagian}</div>}
+      {/* {bidang && <div className="text-xs opacity-70">Bidang: {bidang}</div>} */}
+      <button className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors">
+        &#x22EE;
+      </button>
+    </div>
+  );
+
+  // Perubahan di sini: tambahkan `dateDisplay` sebagai prop baru
+  const DaySchedule = ({ day, dateDisplay, courses }) => (
+    <div className="relative flex items-start mb-8">
+      <div className="w-20 flex-shrink-0 text-white font-bold text-sm mt-2">
+        <div>{dayMap[day]}</div>
+        {/* Tampilkan tanggal di bawah nama hari */}
+        {dateDisplay && (
+          <div className="text-xs opacity-70 font-normal">{dateDisplay}</div>
+        )}
+      </div>
+      <div className="flex-1 ml-4 relative">
+        {courses.length > 0 ? (
+          courses.map((course, index) => <CourseCard key={index} {...course} />)
+        ) : (
+          <p className="text-gray-400 text-sm italic mt-4">Tidak ada jadwal.</p>
+        )}
+      </div>
+    </div>
+  );
+
+  const getTodayDayNumber = () => {
+    return new Date().getDay(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+  };
+
+  const calculateHighlight = (bookingDate, startTime, endTime) => {
+    const now = new Date();
+    const courseStartDate = new Date(`${bookingDate}T${startTime}:00`);
+    const courseEndDate = new Date(`${bookingDate}T${endTime}:00`);
+
+    return now >= courseStartDate && now <= courseEndDate;
+  };
+
+  // Fungsi helper untuk memformat tanggal
+  const formatDate = (dateString) => {
+    const options = { day: "numeric", month: "short" }; // Misalnya "23 Jun"
+    return new Date(dateString).toLocaleDateString("id-ID", options);
+  };
+
+  // --- Fungsi untuk Memproses Data Booking ---
+  const processBookingData = useCallback((dataFromBackend) => {
+    const groupedByDate = {};
+    const allBookings = [];
+
+    for (const dateKey in dataFromBackend) {
+      if (Object.prototype.hasOwnProperty.call(dataFromBackend, dateKey)) {
+        const bookingsForThisDate = dataFromBackend[dateKey];
+        groupedByDate[dateKey] = bookingsForThisDate;
+
+        bookingsForThisDate.forEach((booking) => {
+          const fullBooking = { ...booking, date: dateKey };
+          allBookings.push(fullBooking);
+        });
+      }
+    }
+    setBookingsByDate(groupedByDate);
+
+    const groupedByDayShort = {};
+    allBookings.forEach((booking) => {
+      const bookingDate = new Date(booking.date);
+      const dayNumber = bookingDate.getDay();
+      const shortDay = fullDayToShortDayMap[dayNumber];
+
+      if (!groupedByDayShort[shortDay]) {
+        groupedByDayShort[shortDay] = {
+          day: shortDay,
+          // Tambahkan `dateDisplay` di sini, ambil dari booking pertama yang ditemukan untuk hari itu
+          // Atau lebih baik, buat struktur yang bisa menampung tanggal spesifik per hari
+          // Kita akan mengelola tanggal di `finalSchedule` nanti agar lebih akurat per tanggal.
+          courses: [],
+          datesFound: new Set(), // Untuk menyimpan tanggal unik yang ditemukan untuk hari ini
+        };
+      }
+      groupedByDayShort[shortDay].datesFound.add(booking.date); // Tambahkan tanggal ke Set
+
+      groupedByDayShort[shortDay].courses.push({
+        name: booking.activity || "Kegiatan Tidak Dikenal",
+        time: `${booking.startTime} - ${booking.endTime}`,
+        room: booking.room,
+        bookedBy: booking.bookedBy,
+        bagian: booking.bagian,
+        bidang: booking.bidang,
+        highlight: calculateHighlight(
+          booking.date,
+          booking.startTime,
+          booking.endTime
+        ),
+      });
+    });
+
+    // Urutkan courses berdasarkan waktu mulai untuk setiap hari
+    for (const dayKey in groupedByDayShort) {
+      if (Object.prototype.hasOwnProperty.call(groupedByDayShort, dayKey)) {
+        groupedByDayShort[dayKey].courses.sort((a, b) => {
+          const timeA = a.time.split(" - ")[0];
+          const timeB = b.time.split(" - ")[0];
+          return timeA.localeCompare(timeB);
+        });
+      }
     }
 
-    result[dayKey].push({
-      name: booking.event || "Meeting",
-      time: `${booking.startTime} - ${booking.endTime}`,
-      room: booking.room,
-      bookedBy: booking.bookedBy,
-    });
-  });
+    const todayDayNumber = getTodayDayNumber();
+    const orderedDays = []; // Akan menyimpan objek { day: 'MON', date: '2025-06-23', dateDisplay: '23 Jun' }
 
-  // Convert to array (like old format)
-  return Object.keys(result).map((day) => ({
-    day,
-    courses: result[day],
-  }));
-}
+    // Buat daftar tanggal untuk 7 hari ke depan mulai dari hari ini
+    // Untuk memastikan setiap "hari" di sidebar memiliki tanggal yang spesifik
+    for (let i = 0; i < 7; i++) {
+      const currentDate = new Date();
+      currentDate.setDate(currentDate.getDate() + i);
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const day = String(currentDate.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`; // Format YYYY-MM-DD
 
-// Komponen utama
-export default function SchedulePage() {
-  const [backendBookings, setBackendBookings] = useState([]);
-  const [processedSchedule, setProcessedSchedule] = useState([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
+      const dayNumber = currentDate.getDay();
+      const shortDay = fullDayToShortDayMap[dayNumber];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date()); // Update waktu setiap detik
-    }, 60 * 1000); // Update setiap detik
-    return () => clearInterval(interval); // Bersihkan interval saat komponen unmount
+      // Ambil bookings untuk tanggal spesifik ini dari groupedByDate
+      const coursesForThisDate = groupedByDate[formattedDate] || [];
+
+      // Proses courses untuk tanggal spesifik ini, bukan hanya berdasarkan nama hari
+      const processedCoursesForThisDate = coursesForThisDate
+        .map((booking) => ({
+          name: booking.activity || "Kegiatan Tidak Dikenal",
+          time: `${booking.startTime} - ${booking.endTime}`,
+          room: booking.room,
+          bookedBy: booking.bookedBy,
+          bagian: booking.bagian,
+          bidang: booking.bidang,
+          highlight: calculateHighlight(
+            formattedDate,
+            booking.startTime,
+            booking.endTime
+          ),
+        }))
+        .sort((a, b) => {
+          // Urutkan juga di sini
+          const timeA = a.time.split(" - ")[0];
+          const timeB = b.time.split(" - ")[0];
+          return timeA.localeCompare(timeB);
+        });
+
+      orderedDays.push({
+        day: shortDay,
+        date: formattedDate,
+        dateDisplay: formatDate(formattedDate),
+        courses: processedCoursesForThisDate,
+      });
+    }
+
+    setProcessedSchedule(orderedDays); // Update processedSchedule dengan data yang lebih lengkap
+    setLoading(false);
   }, []);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch("http://192.168.5.3:3005/api/schedule"); // Ganti dengan endpoint API backend Anda
+        const response = await fetch("http://192.168.5.3:3005/api/schedule");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setBackendBookings(data); // Simpan data mentah dari BE
+        processBookingData(data);
+        setDataBe(data);
       } catch (error) {
         console.error("Failed to fetch bookings:", error);
-        // Handle error, misalnya tampilkan pesan ke user
+        setError("Gagal memuat jadwal. Silakan coba lagi nanti.");
+        setLoading(false);
       }
     };
 
     fetchBookings();
-  }, []);
 
-  // Komponen CourseCard
-  const CourseCard = ({
-    name,
-    time,
-    startTime,
-    endTime,
-    highlight,
-    currentTime,
-  }) => {
-    const getStatus = () => {
-      const now = currentTime;
-      const nowMunutes = now.getHours() * 60 + now.getMinutes();
-      const start = timeToMinutes(startTime);
-      const end = timeToMinutes(endTime);
+    const intervalId = setInterval(() => {
+      fetchBookings();
+    }, 60 * 1000);
 
-      if (nowMunutes >= start && nowMunutes <= end) return "Sedang Berlangsung";
-      if (nowMunutes < start) return "Akan Datang";
-      return "Sudah Lewat";
-    };
-    const status = getStatus();
+    return () => clearInterval(intervalId);
+  }, [processBookingData]);
+
+  if (loading) {
     return (
-      <div
-        className={`${
-          highlight ? "bg-green-600 text-white" : "bg-white/30 text-gray-800"
-        } rounded-xl p-4 mb-2 shadow-md backdrop-blur-md transition-all duration-200 hover:shadow-lg hover:scale-[1.02] relative`}>
-        <div className="font-semibold text-lg flex justify-between items-center">
-          {name}
-          {highlight && (
-            <span className="bg-yellow-400 text-xs text-black font-bold px-2 py-0.5 rounded animate-pulse">
-              Sedang Berlangsung
-            </span>
-          )}
+      <div className={styles.background}>
+        <div className="min-h-screen flex items-center justify-center text-white text-2xl">
+          Memuat jadwal...
         </div>
-        <div className="text-sm opacity-90">{time}</div>
-        <button className="absolute top-2 right-2 text-white/70 hover:text-white transition-colors">
-          &#x22EE;
-        </button>
       </div>
     );
-  };
+  }
 
-  // Komponen DaySchedule
-  const DaySchedule = ({ day, courses }) => (
-    <div className="relative flex items-start mb-8">
-      <div className="w-20 flex-shrink-0 text-white font-bold text-sm mt-2">
-        {dayMap[day]}
+  if (error) {
+    return (
+      <div className={styles.background}>
+        <div className="min-h-screen flex items-center justify-center text-red-400 text-2xl text-center">
+          {error}
+        </div>
       </div>
-      <div className="flex-1 ml-4 relative">
-        {courses.map((course, index) => (
-          <CourseCard key={index} {...course} currentTime={currentTime} />
-        ))}
-      </div>
-    </div>
-  );
-
-  const handleItemClick = (event, item) => {
-    event.preventDefault();
-    // Logika untuk menangani klik item, misalnya membuka detail atau melakukan booking
-    // console.log("Item clicked:", item);
-  };
-
-  const getDayName = (dateString) => {
-    const date = new Date(dateString);
-    const options = { weekday: "short" };
-    return new Intl.DateTimeFormat("en-US", options).format(date).toUpperCase();
-  };
-
-  const timeToMinutes = (timeStr) => {
-    if (!timeStr || typeof timeStr !== "string" || !timeStr.includes(":"))
-      return 0;
-
-    const [hour, minute] = timeStr.split(":").map(Number);
-    return hour * 60 + minute;
-  };
-
-  const getStartAndEndOfWeek = () => {
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-
-    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + diffToMonday);
-    monday.setHours(0, 0, 0, 0);
-
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-
-    return { monday, sunday };
-  };
-
-  const getTimeStatus = (start, end, now) => {
-    if (now >= start && now <= end) return 0; // sedang berlangsung
-    if (now < start) return 1; // akan datang
-    return 2; // sudah lewat
-  };
-
-  const isEventHighlight = (dateString, startTime, endTime) => {
-    const now = new Date();
-    const eventStart = new Date(`${dateString}T${startTime}:00`);
-    const eventEnd = new Date(`${dateString}T${endTime}:00`);
-    return now >= eventStart && now <= eventEnd;
-  };
-
-  useEffect(() => {
-    if (backendBookings.length > 0) {
-      const { monday, sunday } = getStartAndEndOfWeek();
-
-      // ⏳ Filter booking hanya yang ada dalam minggu ini
-      const weeklyBookings = backendBookings.filter((booking) => {
-        const bookingDate = new Date(booking.date);
-        return bookingDate >= monday && bookingDate <= sunday;
-      });
-
-      // 🧠 Lanjutkan seperti biasa pakai weeklyBookings
-      const fullDayOrder = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-      const today = new Date();
-      const todayIndex = today.getDay();
-      const dayOrder = [
-        ...fullDayOrder.slice(todayIndex),
-        ...fullDayOrder.slice(0, todayIndex),
-      ];
-      const grouped = {};
-
-      weeklyBookings.forEach((booking) => {
-        const day = getDayName(booking.date);
-
-        if (!grouped[day]) {
-          grouped[day] = [];
-        }
-
-        grouped[day].push({
-          name: booking.event,
-          time: `${booking.startTime} - ${booking.endTime}`,
-          startTime: booking.startTime,
-          highlight: isEventHighlight(
-            booking.date,
-            booking.startTime,
-            booking.endTime
-          ),
-          room: booking.room,
-          date: booking.date,
-          bookedBy: booking.bookedBy,
-        });
-      });
-
-      // Sorting dalam tiap hari
-      dayOrder.forEach((day) => {
-        if (grouped[day]) {
-          grouped[day].sort(
-            (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime)
-          );
-
-          if (day === getDayName(today.toISOString())) {
-            const nowMinutes = today.getHours() * 60 + today.getMinutes();
-
-            grouped[day].sort((a, b) => {
-              const aStart = timeToMinutes(a.startTime);
-              const aEnd = timeToMinutes(a.time.split(" - ")[1]);
-              const bStart = timeToMinutes(b.startTime);
-              const bEnd = timeToMinutes(b.time.split(" - ")[1]);
-
-              const aStatus = getTimeStatus(aStart, aEnd, nowMinutes);
-              const bStatus = getTimeStatus(bStart, bEnd, nowMinutes);
-
-              // Urut: sedang berlangsung (0), akan datang (1), sudah lewat (2)
-              if (aStatus !== bStatus) return aStatus - bStatus;
-
-              // Kalau status sama, urutkan dari jam mulai
-              return aStart - bStart;
-            });
-          }
-        }
-      });
-
-      const sortedSchedule = dayOrder
-        .map((day) =>
-          grouped[day]
-            ? {
-                day,
-                courses: grouped[day],
-              }
-            : null
-        )
-        .filter(Boolean);
-
-      setProcessedSchedule(sortedSchedule);
-    }
-  }, [backendBookings]);
+    );
+  }
 
   return (
     <div className={styles.background}>
@@ -281,13 +282,14 @@ export default function SchedulePage() {
           <div className="bg-emerald-800/30 backdrop-blur-xl border border-emerald-400/20 rounded-3xl p-6 shadow-2xl flex flex-col h-[80vh]">
             <div className="text-white mb-4">
               <h1 className="text-2xl font-bold">BOROBUDUR</h1>
-              <p className="text-sm opacity-80">Antrian Minggu ini</p>
+              <p className="text-sm opacity-80">Ruang Meeting 1</p>
             </div>
             <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar relative">
               {processedSchedule.map((dayData, index) => (
                 <DaySchedule
-                  key={index}
+                  key={dayData.date} // Gunakan tanggal sebagai key untuk unik
                   day={dayData.day}
+                  dateDisplay={dayData.dateDisplay} // Teruskan prop tanggal
                   courses={dayData.courses.filter(
                     (c) => c.room === "BOROBUDUR"
                   )}
@@ -296,35 +298,26 @@ export default function SchedulePage() {
             </div>
           </div>
 
-          {/* Kolom 2: Booking QR */}
+          {/* Kolom 2: Calendar */}
           <div className="">
-            <Calendar data={backendBookings} />
-            <div className="flex flex-col items-center justify-center h-[80vh] text-white">
-              <h2 className="text-xl font-bold mb-4">Booking Ruangan</h2>
-              <div className="bg-white p-4 rounded-xl shadow-xl">
-                <img
-                  src="/qr-code.jpg"
-                  alt="QR Booking"
-                  className="w-40 h-40"
-                />
-              </div>
-              <p className="mt-4 text-sm opacity-80 text-center">
-                Scan QR ini untuk melakukan pemesanan
-              </p>
-            </div>
+            <Calendar
+              data={bookingsByDate}
+              onDataChange={() => processBookingData(dataBe)}
+            />
           </div>
 
           {/* Kolom 3: Prambanan */}
           <div className="bg-purple-800/30 backdrop-blur-xl border border-purple-400/20 rounded-3xl p-6 shadow-2xl flex flex-col h-[80vh]">
             <div className="text-white mb-4">
               <h1 className="text-2xl font-bold">PRAMBANAN</h1>
-              <p className="text-sm opacity-80">Antrian Minggu ini</p>
+              <p className="text-sm opacity-80">Ruang Meeting 2</p>
             </div>
             <div className="flex-grow overflow-y-auto pr-2 custom-scrollbar relative">
               {processedSchedule.map((dayData, index) => (
                 <DaySchedule
-                  key={index}
+                  key={dayData.date} // Gunakan tanggal sebagai key untuk unik
                   day={dayData.day}
+                  dateDisplay={dayData.dateDisplay} // Teruskan prop tanggal
                   courses={dayData.courses.filter(
                     (c) => c.room === "PRAMBANAN"
                   )}

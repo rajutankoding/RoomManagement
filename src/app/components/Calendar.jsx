@@ -1,59 +1,10 @@
 // src/components/Calendar.jsx
 "use client";
 
+import { QRCodeCanvas } from "qrcode.react";
 import React, { useState, useEffect, useCallback } from "react"; // Tambahkan useCallback dan useEffect
 // import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday } from 'date-fns'; // Opsional: jika ingin menggunakan date-fns
 // Untuk kesederhanaan, kita akan tetap pakai Date object standar JS
-
-// Data dummy awal untuk booking. Ini harus diganti dengan fetching dari backend
-// dan akan diperbarui saat ada operasi CRUD atau real-time updates.
-// Format: 'YYYY-MM-DD': [{ id, room, activity, startTime, endTime }]
-
-const initialMockBookings = {
-  "2025-06-10": [
-    {
-      id: 1,
-      room: "Ruang Borobudur",
-      activity: "Rapat Tim Desain",
-      startTime: "09:00",
-      endTime: "10:00",
-    },
-    {
-      id: 2,
-      room: "Ruang Prambanan",
-      activity: "Presentasi Project X",
-      startTime: "11:00",
-      endTime: "12:30",
-    },
-  ],
-  "2025-06-16": [
-    {
-      id: 5,
-      room: "Ruang Borobudur",
-      activity: "Meeting Tim Produksi",
-      startTime: "10:00",
-      endTime: "11:00",
-    },
-  ],
-  "2025-06-15": [
-    {
-      id: 3,
-      room: "Ruang Borobudur",
-      activity: "Sesi Brainstorming",
-      startTime: "14:00",
-      endTime: "16:00",
-    },
-  ],
-  "2025-07-01": [
-    {
-      id: 4,
-      room: "Ruang Prambanan",
-      activity: "Diskusi Akhir Semester",
-      startTime: "10:00",
-      endTime: "11:00",
-    },
-  ],
-};
 
 // --- Fungsi Pembantu ---
 
@@ -119,12 +70,12 @@ const isSameDay = (date1, date2) => {
 
 // --- Komponen Kalender Utama ---
 export default function Calendar({ data }) {
-  console.log("Cek Data", data);
+  // console.log("Cek Data", data);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null); // Menyimpan objek booking yang sedang diedit
-  const [bookingsData, setBookingsData] = useState(initialMockBookings); // State untuk menyimpan data booking
+  const [bookingsData, setBookingsData] = useState({}); // State untuk menyimpan data booking
   const [bookingForm, setBookingForm] = useState({
     id: null,
     bidang: "",
@@ -135,6 +86,9 @@ export default function Calendar({ data }) {
     endTime: "",
     bookedBy: "",
   });
+  useEffect(() => {
+    setBookingsData(data);
+  }, [data]);
 
   // --- Fungsi untuk Mengelola Data Booking (CRUD) ---
 
@@ -333,6 +287,7 @@ export default function Calendar({ data }) {
   return (
     <div className="bg-blue-800/30 backdrop-blur-xl border border-blue-400/20 rounded-3xl p-6 shadow-2xl h-[80vh] flex flex-col justify-between text-white">
       {/* Header Kalender */}
+
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={goToPrevMonth}
@@ -384,23 +339,37 @@ export default function Calendar({ data }) {
             >
               <span className="text-sm">{day.date.getDate()}</span>
               {bookingsOnThisDay.length > 0 && (
-                <div className="absolute bottom-1 right-1 left-1 flex justify-center space-x-0.5">
-                  {bookingsOnThisDay.slice(0, 3).map(
-                    (
-                      booking // Tampilkan hingga 3 dot
-                    ) => (
-                      <span
-                        key={booking.id}
-                        className={`block w-1.5 h-1.5 rounded-full ${
-                          booking.room === "Ruang Borobudur"
-                            ? "bg-emerald-400"
-                            : "bg-purple-400"
-                        }`}
-                        title={`${booking.room}: ${booking.activity}`}></span>
-                    )
+                <div className="absolute bottom-1 right-1 left-1 flex justify-center space-x-1">
+                  {/* Tampilkan jumlah booking untuk BOROBUDUR jika ada */}
+                  {bookingsOnThisDay.filter((c) => c.room === "BOROBUDUR")
+                    .length > 0 && (
+                    <span
+                      className="text-xs font-semibold px-1 py-0.5 rounded bg-emerald-400 text-black"
+                      title={`${
+                        bookingsOnThisDay.filter((c) => c.room === "BOROBUDUR")
+                          .length
+                      } kegiatan Borobudur`}>
+                      {
+                        bookingsOnThisDay.filter((c) => c.room === "BOROBUDUR")
+                          .length
+                      }
+                    </span>
                   )}
-                  {bookingsOnThisDay.length > 3 && (
-                    <span className="text-xs">+</span>
+
+                  {/* Tampilkan jumlah booking untuk PRAMBANAN jika ada */}
+                  {bookingsOnThisDay.filter((c) => c.room === "PRAMBANAN")
+                    .length > 0 && (
+                    <span
+                      className="text-xs font-semibold px-1 py-0.5 rounded bg-purple-400 text-black"
+                      title={`${
+                        bookingsOnThisDay.filter((c) => c.room === "PRAMBANAN")
+                          .length
+                      } kegiatan Prambanan`}>
+                      {
+                        bookingsOnThisDay.filter((c) => c.room === "PRAMBANAN")
+                          .length
+                      }
+                    </span>
                   )}
                 </div>
               )}
@@ -414,7 +383,8 @@ export default function Calendar({ data }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
             <h3 className="text-2xl font-bold text-gray-800 mb-4">
-              {editingBooking ? "Edit Booking" : "Buat Booking Baru"} pada{" "}
+              {/* {editingBooking ? "Edit Booking" : "Buat Booking Baru"} pada{" "} */}
+              Antrian Kegiatan{" "}
               {new Intl.DateTimeFormat("id-ID", {
                 weekday: "long",
                 year: "numeric",
@@ -431,7 +401,11 @@ export default function Calendar({ data }) {
                   {getBookingsForDate(selectedDate).map((booking) => (
                     <li
                       key={booking.id}
-                      className="bg-gray-100 p-3 rounded-md flex justify-between items-center text-gray-800">
+                      className={`${
+                        booking.room == "BOROBUDUR"
+                          ? "bg-emerald-800/30 backdrop-blur-xl border border-emerald-400/20"
+                          : "bg-purple-800/30 backdrop-blur-xl border border-purple-400/20"
+                      } p-3 rounded-md flex justify-between items-center text-gray-800`}>
                       <div>
                         <p className="font-medium">
                           {booking.activity} ({booking.room})
@@ -440,11 +414,6 @@ export default function Calendar({ data }) {
                           {booking.startTime} - {booking.endTime}
                         </p>
                       </div>
-                      <button
-                        onClick={() => openModalForEditBooking(booking)}
-                        className="ml-4 px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors">
-                        Edit
-                      </button>
                     </li>
                   ))}
                 </ul>
@@ -460,7 +429,7 @@ export default function Calendar({ data }) {
                 editingBooking ? handleUpdateBooking : handleCreateBooking
               }
               className="space-y-4 text-gray-800">
-              <div>
+              {/* <div>
                 <label
                   htmlFor="bookedBy"
                   className="block text-sm font-medium text-gray-700 mb-1">
@@ -578,12 +547,12 @@ export default function Calendar({ data }) {
                     required
                   />
                 </div>
-              </div>
-              <button
+              </div> */}
+              {/* <button
                 type="submit"
                 className="w-full px-4 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition-colors">
                 {editingBooking ? "Update Booking" : "Book Now"}
-              </button>
+              </button> */}
               {editingBooking ? (
                 <>
                   <button
@@ -604,13 +573,26 @@ export default function Calendar({ data }) {
                   type="button"
                   onClick={cancelOrder}
                   className="w-full px-4 py-2 bg-gray-400 text-white font-semibold rounded-md hover:bg-gray-500 transition-colors mt-2">
-                  Batal
+                  Tutup
                 </button>
               )}
             </form>
           </div>
         </div>
       )}
+      {/* Kolom 2: Booking QR */}
+      <div className="flex flex-col items-center justify-center text-white">
+        <div className="bg-white rounded-xl shadow-xl">
+          <QRCodeCanvas
+            value={"http://192.168.5.3:3000/booking"}
+            // size={200}
+            className="w-full h-auto"
+          />
+        </div>
+        <p className="mt-1 text-sm opacity-80 text-center">
+          Scan QR ini untuk melakukan pemesanan
+        </p>
+      </div>
     </div>
   );
 }
