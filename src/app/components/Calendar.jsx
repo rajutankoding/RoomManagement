@@ -397,7 +397,7 @@ export default function Calendar({ data }) {
                 Bookings yang sudah ada:
               </h4>
               {getBookingsForDate(selectedDate).length > 0 ? (
-                <ul className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                <ul className="space-y-2  overflow-y-auto custom-scrollbar">
                   {getBookingsForDate(selectedDate).map((booking) => (
                     <li
                       key={booking.id}
