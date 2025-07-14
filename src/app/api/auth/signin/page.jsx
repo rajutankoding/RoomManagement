@@ -24,11 +24,7 @@ export default function SignInPage() {
     if (result.error) {
       setError(result.error); // NextAuth.js akan memberikan pesan error dari throw new Error di authorize
     } else {
-<<<<<<< HEAD
       router.push("/admin"); // Redirect ke halaman admin setelah login sukses
-=======
-      router.push("/booking/admin"); // Redirect ke halaman admin setelah login sukses
->>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
     }
   };
 
@@ -55,11 +51,7 @@ export default function SignInPage() {
               Email
             </label>
             <input
-<<<<<<< HEAD
               // type="email"
-=======
-              type="email"
->>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
               id="email"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={email}
