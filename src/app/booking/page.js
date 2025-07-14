@@ -721,7 +721,11 @@ export default function Calendar() {
                       <label
                         htmlFor="bidang"
                         className="block text-sm font-medium text-gray-700 mb-1">
+<<<<<<< HEAD
                         Bidang/Bagian
+=======
+                        Bidang
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                       </label>
                       <input
                         type="text"
@@ -730,11 +734,18 @@ export default function Calendar() {
                         value={bookingForm.bidang || ""}
                         onChange={handleBookingFormChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+<<<<<<< HEAD
                         placeholder="e.g., MDSI"
                         required
                       />
                     </div>
                     {/* <div>
+=======
+                        placeholder="e.g., Rapat Tim, Workshop"
+                      />
+                    </div>
+                    <div>
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                       <label
                         htmlFor="bagian"
                         className="block text-sm font-medium text-gray-700 mb-1">
@@ -749,7 +760,11 @@ export default function Calendar() {
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                         placeholder="e.g., Rapat Tim, Workshop"
                       />
+<<<<<<< HEAD
                     </div> */}
+=======
+                    </div>
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                     <div>
                       <label
                         htmlFor="activity"

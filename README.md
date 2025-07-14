@@ -14,7 +14,11 @@ pnpm dev
 bun dev
 ```
 
+<<<<<<< HEAD
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+=======
+Open [http://192.168.5.3:3000](http://192.168.5.3:3000) with your browser to see the result.
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 

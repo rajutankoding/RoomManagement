@@ -2,7 +2,10 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 // import { useSession } from "next-auth/react"; // Jika Anda menggunakan NextAuth di halaman admin ini
+=======
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
 
 // Helper function untuk mengelompokkan booking berdasarkan tanggal dan ruangan
 const groupBookingsByDateAndRoom = (bookings) => {
@@ -30,6 +33,7 @@ const groupBookingsByDateAndRoom = (bookings) => {
   return grouped;
 };
 
+<<<<<<< HEAD
 // --- FUNGSI PEMBANTU BARU UNTUK CEK KONFLIK WAKTU DAN TANGGAL ---
 const isTimeConflict = (newBooking, allGroupedBookings, currentEditingId) => {
   // Parsing tanggal dan waktu dari booking baru ke objek Date
@@ -83,11 +87,25 @@ export default function AdminPage() {
 
   // --- State untuk Edit/Delete Booking ---
   const [showEditModal, setShowEditModal] = useState(false); //
+=======
+export default function AdminPage() {
+  const router = useRouter();
+  const [dataJadwal, setDataJadwal] = useState({}); // State untuk data booking yang sudah dikelompokkan
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // --- State untuk Edit/Delete Booking ---
+  const [showEditModal, setShowEditModal] = useState(false);
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
   const [editingBooking, setEditingBooking] = useState(null); // Menyimpan objek booking yang sedang diedit
   const [editBookingForm, setEditBookingForm] = useState({
     // Menyimpan data form untuk editing
     id: null,
+<<<<<<< HEAD
     date: "", // Pastikan 'date' ada di sini
+=======
+    date: "",
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
     room: "",
     event: "",
     startTime: "",
@@ -102,9 +120,13 @@ export default function AdminPage() {
     setLoading(true);
     setError(null);
     try {
+<<<<<<< HEAD
       const response = await fetch(
         "http://192.168.5.3:3005/api/schedule/admin"
       ); // Pastikan URL dan PORT benar
+=======
+      const response = await fetch("http://192.168.5.3:3005/api/schedule/book"); // Pastikan URL dan PORT benar
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
       if (!response.ok) {
         throw new Error(`Gagal mengambil data jadwal: ${response.statusText}`);
       }
@@ -123,6 +145,7 @@ export default function AdminPage() {
   useEffect(() => {
     fetchScheduleData(); // Panggil fungsi pengambilan data
 
+<<<<<<< HEAD
     // Jika Anda menggunakan NextAuth, uncomment bagian ini
     // if (status === "loading") return;
 
@@ -137,6 +160,21 @@ export default function AdminPage() {
     //   }
     // }
   }, [router, fetchScheduleData]); // Hapus 'status', 'session' dari dependency array jika NextAuth tidak digunakan
+=======
+    if (status === "loading") return;
+
+    if (status === "unauthenticated") {
+      router.push("/api/auth/signin");
+    } else if (status === "authenticated") {
+      //   console.log("Pengguna terautentikasi:", session.user);
+      if (session.user && session.user.role !== "admin") {
+        // Sesuaikan dengan role admin Anda
+        alert("Anda tidak memiliki akses ke halaman admin!");
+        router.push("/");
+      }
+    }
+  }, [router, fetchScheduleData]);
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
 
   // Handler perubahan input pada form edit booking
   const handleEditFormChange = (e) => {
@@ -153,7 +191,11 @@ export default function AdminPage() {
     // Isi form dengan data booking yang ada
     setEditBookingForm({
       id: booking.id,
+<<<<<<< HEAD
       date: booking.date, // Pastikan ini mengisi tanggal dari booking yang diedit
+=======
+      date: booking.date,
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
       room: booking.room,
       event: booking.event,
       startTime: booking.startTime,
@@ -196,6 +238,7 @@ export default function AdminPage() {
     e.preventDefault();
     if (!editingBooking || !editBookingForm.id) return;
 
+<<<<<<< HEAD
     // --- Validasi Waktu Selesai harus setelah Waktu Mulai ---
     const newStartDate = new Date(
       `${editBookingForm.date}T${editBookingForm.startTime}`
@@ -205,10 +248,22 @@ export default function AdminPage() {
     );
 
     if (newEndDate <= newStartDate) {
+=======
+    // Lakukan validasi dasar (misal, waktu selesai tidak boleh sebelum waktu mulai)
+    const startMinutes =
+      parseInt(editBookingForm.startTime.split(":")[0]) * 60 +
+      parseInt(editBookingForm.startTime.split(":")[1]);
+    const endMinutes =
+      parseInt(editBookingForm.endTime.split(":")[0]) * 60 +
+      parseInt(editBookingForm.endTime.split(":")[1]);
+
+    if (endMinutes <= startMinutes) {
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
       alert("Waktu selesai harus setelah waktu mulai.");
       return;
     }
 
+<<<<<<< HEAD
     // --- CEK KONFLIK WAKTU DENGAN BOOKING LAIN ---
     const hasConflict = isTimeConflict(
       editBookingForm, // Booking yang baru diedit
@@ -224,6 +279,8 @@ export default function AdminPage() {
     }
     // --- AKHIR CEK KONFLIK WAKTU ---
 
+=======
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
     try {
       const response = await fetch(
         `http://192.168.5.3:3005/api/schedule/book/${editBookingForm.id}`,
@@ -270,11 +327,19 @@ export default function AdminPage() {
   const sortedDates = Object.keys(dataJadwal).sort();
 
   return (
+<<<<<<< HEAD
     <>
       {" "}
       <h1 className="text-3xl font-bold text-gray-800 mb-6">
         Dashboard Admin Jadwal Ruangan
       </h1>
+=======
+    <div className="min-h-screen bg-gray-100 p-8">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        Dashboard Admin Jadwal Ruangan
+      </h1>
+
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
       {/* Status Loading dan Error */}
       {loading && (
         <p className="text-center text-gray-600 text-lg mt-8">
@@ -286,6 +351,10 @@ export default function AdminPage() {
           Error: {error}. Silakan coba lagi.
         </p>
       )}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
       {/* Tabel Jadwal */}
       {!loading && !error && (
         <div className="overflow-x-auto bg-white rounded-lg shadow-md">
@@ -301,7 +370,11 @@ export default function AdminPage() {
               {sortedDates.length === 0 ? (
                 <tr>
                   <td colSpan="3" className="text-center py-4">
+<<<<<<< HEAD
                     Tidak ada jadwal yang akan datang.
+=======
+                    Tidak ada jadwal ditemukan.
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                   </td>
                 </tr>
               ) : (
@@ -404,7 +477,12 @@ export default function AdminPage() {
           </table>
         </div>
       )}
+<<<<<<< HEAD
       {/* --- Modal Edit Booking --- */}
+=======
+
+      {/* --- Modal Edit Booking (mirip dengan di Calendar.jsx) --- */}
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
       {showEditModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md animate-fade-in-up">
@@ -415,7 +493,11 @@ export default function AdminPage() {
               {/* ID Booking (hidden, hanya untuk referensi) */}
               <input type="hidden" name="id" value={editBookingForm.id || ""} />
 
+<<<<<<< HEAD
               {/* Tanggal */}
+=======
+              {/* Tanggal (read-only) */}
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
               <div className="mb-4">
                 <label
                   htmlFor="editDate"
@@ -423,6 +505,7 @@ export default function AdminPage() {
                   Tanggal
                 </label>
                 <input
+<<<<<<< HEAD
                   type="date"
                   id="editDate"
                   name="date"
@@ -430,6 +513,22 @@ export default function AdminPage() {
                   onChange={handleEditFormChange}
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                   required
+=======
+                  type="text"
+                  id="editDate"
+                  name="date"
+                  value={new Date(editBookingForm.date).toLocaleDateString(
+                    "id-ID",
+                    {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )}
+                  className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                  readOnly
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                 />
               </div>
 
@@ -489,10 +588,18 @@ export default function AdminPage() {
                   placeholder="e.g., Jhon Doe / NIP"
                   required
                 />
+<<<<<<< HEAD
               </div>
 
               {/* Bagian */}
               {/* <div className="mb-4">
+=======
+                {/* Di sini Anda bisa menambahkan validasi NIP real-time jika diperlukan, seperti di Calendar.jsx */}
+              </div>
+
+              {/* Bagian */}
+              <div className="mb-4">
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                 <label
                   htmlFor="editBagian"
                   className="block text-sm font-medium text-gray-700 mb-1">
@@ -507,14 +614,22 @@ export default function AdminPage() {
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
                   placeholder="e.g., TI"
                 />
+<<<<<<< HEAD
               </div> */}
+=======
+              </div>
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
 
               {/* Bidang */}
               <div className="mb-4">
                 <label
                   htmlFor="editBidang"
                   className="block text-sm font-medium text-gray-700 mb-1">
+<<<<<<< HEAD
                   Bidang/Bagian
+=======
+                  Bidang
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                 </label>
                 <input
                   type="text"
@@ -523,8 +638,12 @@ export default function AdminPage() {
                   value={editBookingForm.bidang}
                   onChange={handleEditFormChange}
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500"
+<<<<<<< HEAD
                   placeholder="e.g., MDSI"
                   required
+=======
+                  placeholder="e.g., Infrastruktur"
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                 />
               </div>
 
@@ -582,6 +701,10 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+<<<<<<< HEAD
     </>
+=======
+    </div>
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
   );
 }

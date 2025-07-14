@@ -35,16 +35,24 @@ export default function DashboardLayout({ children }) {
           </Link>
         </div>
         <div className="flex gap-2 items-center">
+<<<<<<< HEAD
           <Link
             href="/admin/dashboard"
             className={`btn btn-sm ${
               pathname === "/admin/dashboard"
+=======
+          {/* <Link
+            href="/booking/admin"
+            className={`btn btn-sm ${
+              pathname === "/booking/admin"
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
                 ? "bg-blue-700 text-white"
                 : "bg-blue-300 text-white"
             }`}>
             Dashboard
           </Link>
           <Link
+<<<<<<< HEAD
             href="/admin"
             className={`btn btn-sm ${
               pathname === "/admin"
@@ -98,6 +106,16 @@ export default function DashboardLayout({ children }) {
             }`}>
             Cashiers
           </Link>
+=======
+            href="/booking"
+            className={`btn btn-sm ${
+              pathname === "/booking"
+                ? "bg-blue-700 text-white"
+                : "bg-blue-300 text-white"
+            }`}>
+            Booking
+          </Link> */}
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
           <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
@@ -134,6 +152,7 @@ export default function DashboardLayout({ children }) {
           </div>
         </div>
       </div>
+<<<<<<< HEAD
       <main className="flex-grow p-4 bg-gray-100">
         <div className="min-h-screen bg-gray-100 p-8">{children}</div>
       </main>
@@ -142,6 +161,10 @@ export default function DashboardLayout({ children }) {
           <p>Copyright © {new Date().getFullYear()} - MDSI Amino</p>
         </aside>
       </footer>
+=======
+
+      <main className="flex-grow p-4 bg-gray-100">{children}</main>
+>>>>>>> 3e38e4585f8f968c9345500075b25864d7d916f2
     </div>
   );
 }

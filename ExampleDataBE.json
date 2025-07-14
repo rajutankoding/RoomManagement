@@ -1,0 +1,368 @@
+{
+  "2025-06-18": [
+    {
+      "id": 1,
+      "room": "PRAMBANAN",
+      "activity": "Reverse-engineered dynamic system engine",
+      "startTime": "15:00",
+      "endTime": "16:00"
+    },
+    {
+      "id": 12,
+      "room": "PRAMBANAN",
+      "activity": "Public-key client-server microservice",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 16,
+      "room": "BOROBUDUR",
+      "activity": "Open-source asynchronous help-desk",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 17,
+      "room": "PRAMBANAN",
+      "activity": "Open-source fresh-thinking interface",
+      "startTime": "10:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": 21,
+      "room": "PRAMBANAN",
+      "activity": "Intuitive next generation methodology",
+      "startTime": "14:00",
+      "endTime": "15:00"
+    },
+    {
+      "id": 22,
+      "room": "BOROBUDUR",
+      "activity": "Innovative coherent encryption",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 23,
+      "room": "PRAMBANAN",
+      "activity": "Reverse-engineered maximized frame",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 42,
+      "room": "BOROBUDUR",
+      "activity": "Team-oriented dedicated productivity",
+      "startTime": "14:00",
+      "endTime": "15:00"
+    }
+  ],
+  "2025-06-19": [
+    {
+      "id": 2,
+      "room": "PRAMBANAN",
+      "activity": "Ergonomic systematic software",
+      "startTime": "10:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": 7,
+      "room": "PRAMBANAN",
+      "activity": "Future-proofed eco-centric toolset",
+      "startTime": "09:00",
+      "endTime": "10:00"
+    },
+    {
+      "id": 8,
+      "room": "BOROBUDUR",
+      "activity": "Polarised methodical implementation",
+      "startTime": "09:00",
+      "endTime": "10:00"
+    },
+    {
+      "id": 10,
+      "room": "BOROBUDUR",
+      "activity": "Organic high-level website",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 15,
+      "room": "PRAMBANAN",
+      "activity": "Focused client-driven emulation",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 20,
+      "room": "PRAMBANAN",
+      "activity": "AI-driven regional open architecture",
+      "startTime": "11:00",
+      "endTime": "12:00"
+    },
+    {
+      "id": 35,
+      "room": "BOROBUDUR",
+      "activity": "Reactive 24 hour support",
+      "startTime": "16:00",
+      "endTime": "17:00"
+    },
+    {
+      "id": 39,
+      "room": "BOROBUDUR",
+      "activity": "Extended asynchronous software",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": 47,
+      "room": "PRAMBANAN",
+      "activity": "Synchronised interactive strategy",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    }
+  ],
+  "2025-06-14": [
+    {
+      "id": 3,
+      "room": "PRAMBANAN",
+      "activity": "Extended motivating archive",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 14,
+      "room": "PRAMBANAN",
+      "activity": "Front-line zero administration productivity",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    },
+    {
+      "id": 31,
+      "room": "PRAMBANAN",
+      "activity": "Enhanced user-facing hardware",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    },
+    {
+      "id": 32,
+      "room": "BOROBUDUR",
+      "activity": "Sharable AI-powered database",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": 37,
+      "room": "BOROBUDUR",
+      "activity": "Operative hybrid migration",
+      "startTime": "16:00",
+      "endTime": "17:00"
+    },
+    {
+      "id": 45,
+      "room": "BOROBUDUR",
+      "activity": "Diverse fresh-thinking architecture",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    }
+  ],
+  "2025-06-16": [
+    {
+      "id": 4,
+      "room": "PRAMBANAN",
+      "activity": "Public-key intangible frame",
+      "startTime": "08:00",
+      "endTime": "09:00"
+    },
+    {
+      "id": 24,
+      "room": "PRAMBANAN",
+      "activity": "Stand-alone discrete emulation",
+      "startTime": "11:00",
+      "endTime": "12:00"
+    }
+  ],
+  "2025-06-17": [
+    {
+      "id": 5,
+      "room": "PRAMBANAN",
+      "activity": "Organic executive synergy",
+      "startTime": "15:00",
+      "endTime": "16:00"
+    },
+    {
+      "id": 6,
+      "room": "PRAMBANAN",
+      "activity": "Stand-alone transitional conglomeration",
+      "startTime": "10:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": 25,
+      "room": "BOROBUDUR",
+      "activity": "Reverse-engineered bottom-line matrices",
+      "startTime": "11:00",
+      "endTime": "12:00"
+    },
+    {
+      "id": 27,
+      "room": "BOROBUDUR",
+      "activity": "Compatible well-modulated budgetary management",
+      "startTime": "10:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": 28,
+      "room": "BOROBUDUR",
+      "activity": "Immersive systematic help-desk",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    },
+    {
+      "id": 38,
+      "room": "PRAMBANAN",
+      "activity": "Programmable homogeneous instruction set",
+      "startTime": "11:00",
+      "endTime": "12:00"
+    },
+    {
+      "id": 48,
+      "room": "PRAMBANAN",
+      "activity": "Public-key analyzing open architecture",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    }
+  ],
+  "2025-06-15": [
+    {
+      "id": 9,
+      "room": "PRAMBANAN",
+      "activity": "Self-enabling clear-thinking toolset",
+      "startTime": "16:00",
+      "endTime": "17:00"
+    },
+    {
+      "id": 11,
+      "room": "PRAMBANAN",
+      "activity": "Centralized needs-based matrices",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    },
+    {
+      "id": 36,
+      "room": "PRAMBANAN",
+      "activity": "Universal user-facing structure",
+      "startTime": "16:00",
+      "endTime": "17:00"
+    },
+    {
+      "id": 43,
+      "room": "BOROBUDUR",
+      "activity": "User-friendly real-time challenge",
+      "startTime": "15:00",
+      "endTime": "16:00"
+    },
+    {
+      "id": 50,
+      "room": "BOROBUDUR",
+      "activity": "Customizable resilient forecast",
+      "startTime": "14:00",
+      "endTime": "15:00"
+    }
+  ],
+  "2025-06-12": [
+    {
+      "id": 13,
+      "room": "BOROBUDUR",
+      "activity": "Distributed actuating instruction set",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": 19,
+      "room": "PRAMBANAN",
+      "activity": "Immersive holistic application",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": 26,
+      "room": "PRAMBANAN",
+      "activity": "Public-key composite benchmark",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    },
+    {
+      "id": 29,
+      "room": "BOROBUDUR",
+      "activity": "Public-key impactful generative AI",
+      "startTime": "09:00",
+      "endTime": "10:00"
+    },
+    {
+      "id": 30,
+      "room": "PRAMBANAN",
+      "activity": "Reduced 24 hour data-warehouse",
+      "startTime": "10:00",
+      "endTime": "11:00"
+    },
+    {
+      "id": 33,
+      "room": "PRAMBANAN",
+      "activity": "Self-enabling systemic benchmark",
+      "startTime": "09:00",
+      "endTime": "10:00"
+    },
+    {
+      "id": 40,
+      "room": "PRAMBANAN",
+      "activity": "Enhanced cohesive protocol",
+      "startTime": "15:00",
+      "endTime": "16:00"
+    },
+    {
+      "id": 49,
+      "room": "BOROBUDUR",
+      "activity": "Compatible bifurcated knowledge user",
+      "startTime": "10:00",
+      "endTime": "12:00"
+    }
+  ],
+  "2025-06-13": [
+    {
+      "id": 18,
+      "room": "BOROBUDUR",
+      "activity": "Visionary well-modulated frame",
+      "startTime": "12:00",
+      "endTime": "13:00"
+    },
+    {
+      "id": 34,
+      "room": "PRAMBANAN",
+      "activity": "Automated tangible complexity",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": 41,
+      "room": "PRAMBANAN",
+      "activity": "Programmable clear-thinking hierarchy",
+      "startTime": "09:00",
+      "endTime": "10:00"
+    },
+    {
+      "id": 44,
+      "room": "BOROBUDUR",
+      "activity": "Visionary context-sensitive function",
+      "startTime": "13:00",
+      "endTime": "14:00"
+    },
+    {
+      "id": 46,
+      "room": "BOROBUDUR",
+      "activity": "Business-focused stable concept",
+      "startTime": "16:00",
+      "endTime": "17:00"
+    }
+  ]
+}
