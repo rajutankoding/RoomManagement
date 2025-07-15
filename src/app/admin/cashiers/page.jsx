@@ -1,10 +1,12 @@
 import PricingCard from "@/components/PricingCard";
+import SearchInputComponent from "@/components/SearchInputComponent";
 import Image from "next/image";
 import React from "react";
 
 const page = () => {
   return (
     <div>
+      <SearchInputComponent />
       <div className="flex flex-wrap justify-center ">
         <PricingCard
           cModal={
@@ -99,9 +101,12 @@ const page = () => {
                   </button>
                 </li>
               </ul>
-              <button className="btn btn-sm btn-info mt-4 btn-dash">
-                Close Bill
-              </button>
+              <div className="justify-between flex mt-4">
+                <a className="font-mono font-thin">Total : RP. 50.000,00</a>
+                <button className="btn btn-sm btn-info btn-dash">
+                  Close Bill
+                </button>
+              </div>
             </div>
           }
           tModal={"Billing Table 1"}

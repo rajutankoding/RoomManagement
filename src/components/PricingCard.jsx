@@ -1,5 +1,5 @@
 import React from "react";
-import FlexibleModal from "./DialogModalComponent";
+import ModalComponent from "./ModalComponent";
 
 const PricingCard = ({ tButton, tModal, cModal }) => {
   return (
@@ -109,13 +109,13 @@ const PricingCard = ({ tButton, tModal, cModal }) => {
           </li>
         </ul>
         <div className="mt-6">
-          <FlexibleModal
+          <ModalComponent
             modalId="delete_modal"
             buttonText={tButton}
             modalTitle={tModal}
             modalSize="max-w-md">
             {cModal}
-          </FlexibleModal>
+          </ModalComponent>
         </div>
       </div>
     </div>
